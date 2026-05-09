@@ -1,0 +1,18 @@
+# .NET build output
+bin/
+obj/
+
+# IDE
+.vs/
+.vscode/
+
+# Local SDK/NuGet/cache folders
+.dotnet_home/
+**/.dotnet_home/
+**/.appdata/
+**/.nuget_packages/
+
+# SQLite local database
+*.db
+*.db-shm
+*.db-wal

@@ -1,0 +1,6 @@
+@EntregaFacil.Api_HostAddress = http://localhost:5191
+
+GET {{EntregaFacil.Api_HostAddress}}/api/products
+Accept: application/json
+
+###
