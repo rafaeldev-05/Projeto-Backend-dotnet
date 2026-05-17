@@ -1,81 +1,144 @@
-# EntregaFacil.Api
+# EntregaFacil
 
-EntregaFacil.Api e uma Web API em ASP.NET Core criada para estudar C#/.NET, Entity Framework Core, SQLite, arquitetura em camadas simples e regras de negocio de um sistema de controle de entregas para loja virtual.
+EntregaFacil e uma aplicacao fullstack demonstravel para portfolio tecnico. O sistema simula o controle de entregas de uma loja virtual, desde o cadastro de produtos ate separacao, envio, ocorrencias, entrega e avaliacao do cliente.
 
-O projeto nao possui frontend nem autenticacao nesta primeira versao. O foco e backend, endpoints REST, Swagger, banco de dados e regras de negocio.
+O projeto usa somente dados ficticios. Nao ha autenticacao, pagamento, envio real de e-mail ou integracao real com transportadoras nesta versao.
 
-## Arquitetura
+## Estrutura
 
-O projeto usa uma organizacao simples em camadas:
-
-- `Controllers`: recebem as requisicoes HTTP e retornam respostas da API.
-- `Services`: concentram as regras de negocio.
-- `Repositories`: encapsulam o acesso ao banco com Entity Framework Core.
-- `Models`: entidades persistidas no banco de dados.
-- `DTOs`: objetos usados como entrada e saida dos endpoints.
-- `Data`: configuracao do `DbContext`, relacionamentos e seeds.
-- `Enums`: valores fixos como status do pedido e tipos de ocorrencia.
-- `Migrations`: historico de alteracoes do banco gerado pelo EF Core.
+```text
+EntregaFacil.Api/   Backend ASP.NET Core Web API
+EntregaFacil.Web/   Frontend Next.js
+```
 
 ## Tecnologias
+
+Backend:
 
 - .NET 10
 - ASP.NET Core Web API
 - Entity Framework Core
-- SQLite
+- SQLite local
 - Swagger/OpenAPI via Swashbuckle
 
-## Pacotes
+Frontend:
 
-Pacotes adicionados ao projeto:
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Vercel como destino de deploy do frontend
 
-- `Microsoft.AspNetCore.OpenApi`
-- `Microsoft.EntityFrameworkCore.Sqlite`
-- `Microsoft.EntityFrameworkCore.Design`
-- `Swashbuckle.AspNetCore`
+## Como Rodar O Backend
 
-A ferramenta local `dotnet-ef` tambem foi instalada para gerar e aplicar migrations.
-
-## Como restaurar dependencias
-
-Dentro da pasta do projeto:
+Entre na pasta da API:
 
 ```powershell
 cd EntregaFacil.Api
+```
+
+Restaure dependencias e ferramentas:
+
+```powershell
 dotnet restore
 dotnet tool restore
 ```
 
-## Como aplicar migrations no SQLite
+Crie ou atualize o banco SQLite local:
 
 ```powershell
 dotnet tool run dotnet-ef database update
 ```
 
-Esse comando cria o arquivo local `entregafacil.db`.
-
-## Como rodar o projeto
+Rode a API:
 
 ```powershell
 dotnet run
 ```
 
-Depois acesse o Swagger no navegador. A porta pode variar conforme o `launchSettings.json`, mas normalmente sera algo parecido com:
+Swagger:
 
 ```text
 http://localhost:5191/swagger
 ```
 
-## Endpoints
+Se o terminal mostrar outra porta, use a porta indicada pelo `dotnet run`.
 
-### Products
+## Como Rodar O Frontend
+
+Em outro terminal, entre na pasta do frontend:
+
+```powershell
+cd EntregaFacil.Web
+```
+
+Instale as dependencias:
+
+```powershell
+npm install
+```
+
+Crie um arquivo `.env.local` com a URL da API:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5191
+```
+
+O projeto tambem possui `.env.example` com esse valor.
+
+Rode o frontend:
+
+```powershell
+npm run dev
+```
+
+Acesse:
+
+```text
+http://localhost:3000
+```
+
+Se o Next.js usar outra porta, como `3001` ou `3002`, acesse a porta exibida no terminal.
+
+## Variavel De Ambiente
+
+O frontend consome a API pela variavel:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5191
+```
+
+Para usar outra porta no backend, ajuste apenas esse valor em `EntregaFacil.Web/.env.local`.
+
+## CORS
+
+O backend permite chamadas do frontend local nas origens:
+
+- `http://localhost:3000`
+- `http://localhost:3001`
+- `http://localhost:3002`
+
+## Funcionalidades Do Frontend
+
+- Landing page de portfolio com tecnologias e modulos do sistema.
+- Dashboard com indicadores calculados pela API.
+- Produtos: listagem, cadastro e edicao.
+- Pedidos: listagem, detalhes, cadastro e fluxo operacional.
+- Transportadoras: listagem, cadastro e detalhes.
+- Envio de pedido com transportadora, rastreamento e data de envio.
+- Registro e timeline de ocorrencias.
+- Avaliacao de entrega para pedidos entregues.
+
+## Endpoints Do Backend
+
+Products:
 
 - `GET /api/products`
 - `GET /api/products/{id}`
 - `POST /api/products`
 - `PUT /api/products/{id}`
 
-### Orders
+Orders:
 
 - `GET /api/orders`
 - `GET /api/orders/{id}`
@@ -85,54 +148,28 @@ http://localhost:5191/swagger
 - `POST /api/orders/{id}/cancel-by-customer`
 - `POST /api/orders/{id}/cancel-by-stock`
 
-### Carriers
+Carriers:
 
 - `GET /api/carriers`
 - `GET /api/carriers/{id}`
 - `POST /api/carriers`
 
-### Shipments
+Shipments:
 
 - `POST /api/orders/{id}/ship`
 - `POST /api/orders/{id}/confirm-delivery`
 
-### Delivery Occurrences
+Delivery Occurrences:
 
 - `POST /api/orders/{id}/occurrences`
 - `GET /api/orders/{id}/occurrences`
 
-### Delivery Reviews
+Delivery Reviews:
 
 - `POST /api/orders/{id}/review`
 - `GET /api/orders/{id}/review`
 
-## Fluxo sugerido para testar no Swagger
-
-1. Use `GET /api/products` para ver produtos com estoque.
-2. Use `GET /api/orders` para ver pedidos iniciais.
-3. Use `POST /api/orders/1/start-separation`.
-4. Use `POST /api/orders/1/confirm-separation`.
-5. Use `POST /api/orders/1/ship` com um corpo como:
-
-```json
-{
-  "carrierId": 1,
-  "trackingCode": "BR123456789",
-  "shippingDate": "2026-05-06T10:00:00Z"
-}
-```
-
-6. Use `POST /api/orders/1/confirm-delivery`.
-7. Use `POST /api/orders/1/review` com um corpo como:
-
-```json
-{
-  "rating": 5,
-  "comment": "Entrega rapida e bem acompanhada."
-}
-```
-
-## Regras de negocio implementadas
+## Regras De Negocio Implementadas
 
 - Um pedido so entra em separacao se estiver `AwaitingSeparation`.
 - Apenas pedidos em separacao podem ter a separacao confirmada.
@@ -141,7 +178,6 @@ http://localhost:5191/swagger
 - Um pedido so pode ser enviado se estiver `ReadyForShipping`.
 - Para registrar envio, transportadora, codigo de rastreamento e data de envio sao obrigatorios.
 - Ao registrar envio, o pedido passa para `Shipped`.
-- O cliente e notificado por uma simulacao no `NotificationService`.
 - A transportadora pode confirmar entrega ou registrar ocorrencia.
 - Ao confirmar entrega, o pedido passa para `Delivered`.
 - Ocorrencias nao encerram o pedido; ele permanece `Shipped`.
@@ -151,28 +187,27 @@ http://localhost:5191/swagger
 - Avaliacao so pode ser registrada quando o pedido esta `Delivered`.
 - Nota da avaliacao deve estar entre 1 e 5.
 
-## Regras simplificadas
+## Deploy Do Frontend Na Vercel
 
-- Nao ha autenticacao. Os papeis de cliente, funcionario e transportadora foram representados por endpoints especificos.
-- A notificacao ao cliente e apenas simulada via log da aplicacao.
-- O rastreamento da transportadora foi simplificado para ocorrencias e confirmacao de entrega.
-- Cada pedido pode ter apenas uma entrega (`Shipment`) e uma avaliacao (`DeliveryReview`).
+Nesta fase, apenas o frontend esta preparado para deploy na Vercel. O backend e o banco SQLite ainda rodam localmente.
 
-## Regras descartadas nesta versao
+Passos gerais:
 
-- Estorno de pagamento.
-- Envio real de email.
-- Integracao real com transportadoras.
-- Controle de usuario, login, permissoes e perfis.
-- Frontend.
+1. Suba o repositorio para o GitHub.
+2. Na Vercel, importe o repositorio.
+3. Configure o projeto apontando para a pasta `EntregaFacil.Web`.
+4. Configure a variavel `NEXT_PUBLIC_API_URL`.
+5. Publique o frontend.
 
-## Proximas evolucoes recomendadas
+Importante: enquanto o backend estiver apenas local, o frontend publicado na Vercel nao conseguira consumir a API da sua maquina. Para uma demo online completa, sera necessario hospedar tambem o backend e trocar o SQLite local por uma solucao de banco hospedada.
 
+## Proximas Evolucoes
+
+- Hospedar o backend.
+- Trocar SQLite local por um banco gratuito hospedado.
 - Criar autenticacao com JWT.
-- Separar perfis de usuario: cliente, funcionario e transportadora.
-- Adicionar testes automatizados para Services.
-- Criar filtros de pedidos por status.
-- Adicionar historico de mudancas de status.
-- Implementar envio real de email.
-- Criar paginacao em listagens.
-- Criar uma camada de tratamento global de erros.
+- Separar perfis de cliente, funcionario e transportadora.
+- Adicionar testes automatizados.
+- Criar historico detalhado de status.
+- Implementar envio real de e-mail.
+- Integrar transportadoras reais.
